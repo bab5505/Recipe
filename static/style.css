@@ -1,0 +1,104 @@
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center; /* Center align the content */
+  }
+  
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left; /* Reset text alignment for container */
+  }
+  
+  header {
+    background-color: #d6d5d5;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+  }
+  
+  h1 {
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    text-decoration: underline;
+  }
+  
+  /* Navigation styles */
+  nav {
+    margin-bottom: 20px;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  nav ul li {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: #333;
+  }
+  
+  /* Form styles */
+  form {
+    margin-bottom: 20px;
+    text-align: left; /* Reset text alignment for form */
+  }
+  
+  form input,
+  form textarea {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  form button {
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Recipe styles */
+  .recipe {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f2f2f2;
+  }
+  
+  .recipe h2 {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .recipe p {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Other styles */
+  .success-message {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+  }
+  
+  #add-recipe-section {
+    padding: 38px;
+  }
+  

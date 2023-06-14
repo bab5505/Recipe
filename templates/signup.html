@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Signup{% endblock %}
+
+{% block content %}
+    <h1>Signup</h1>
+    <form id="signup-form" method="post" action="{{ url_for('signup') }}">
+        
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.username.label }}
+            {{ form.username(size=20, required=True, class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.password.label }}
+            {{ form.password(size=20, required=True, class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(size=40, required=True, class="form-control") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Signup</button>
+    </form>
+
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var signupForm = document.getElementById('signup-form');
+
+            signupForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                
+                var username = signupForm.elements.username.value;
+                var password = signupForm.elements.password.value;
+                var email = signupForm.elements.email.value;
+
+                
+                var signupData = {
+                    username: username,
+                    password: password,
+                    email: email
+                };
+
+            
+                fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(signupData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+
+                        console.log('Signup Response:', data);
+                        
+                        
+                    })
+                    .catch(error => {
+                        
+                        console.error('Signup Error:', error);
+                    });
+            });
+        });
+    </script> -->
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

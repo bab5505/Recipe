@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <h1>Welcome to the Recipe Collection App</h1>
+  <h1>Recipes</h1>
+  <ul>
+    {% for recipe in recipes %}
+      <li>
+        <a href="{{ recipe.url }}">{{ recipe.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  <!-- <a href="{{ url_for('recipe.recipe_list') }}" class="add-recipe-button">Add Recipe</a> -->
+  
+  <main>
+    <section id="search-section">
+      <h2>Search for Recipes</h2>
+      <input type="text" id="search-input" placeholder="Enter keywords">
+      <button id="search-button">Search</button>
+    </section>
+
+    <section id="recipes-section">
+      <div id="recipes-container">
+        {% for recipe in recipes %}
+          <p><a href="{{ url_for('view_recipe', recipe_id=recipe.id) }}">{{ recipe.title }}</a></p>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <section id="add-recipe-section">
+    <a href="{{ url_for('recipe.recipe_list') }}" class="add-recipe-button">Add Recipe</a>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var searchButton = document.getElementById('search-button');
+      var searchInput = document.getElementById('search-input');
+      var recipesContainer = document.getElementById('recipes-container');
+
+      searchButton.addEventListener('click', function() {
+        var query = searchInput.value;
+
+        // Perform the necessary action with the search query
+        // Example: Make an API call to retrieve recipes based on the search query
+
+        // Update the recipesContainer with the retrieved recipes
+        // Example: Append the retrieved recipes to the recipesContainer element
+
+        // For demonstration purposes, let's log the search query to the console
+        console.log('Search Query:', query);
+      });
+    });
+  </script>
+{% endblock %}
