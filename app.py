@@ -1,12 +1,15 @@
 from flask import Flask, request, render_template, redirect, url_for, session, g, flash
+from routes import auth_bp, recipe_bp
+from config import Config
 from forms import RecipeForm, UserAddForm, LoginForm
+from database import db, migrate
 from models import Recipe, User
-from routes import recipe_bp
+from routes import auth_bp, recipe_bp
 from sqlalchemy.exc import IntegrityError
 # from flask_migrate import Migrate
 import requests
 
-CURR_USER_KEY = 'user_id'
+CURR_USER_KEY = 'User_id'
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with your secret key
@@ -23,6 +26,16 @@ with app.app_context():
 
 app.register_blueprint(recipe_bp)
 
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(recipe_bp)
+
+    return app
 
 @app.route('/')
 def index():
@@ -62,7 +75,11 @@ def index():
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add current user to Flask global."""
-    g.user = User.query.get(session.get('user_id'))
+    user_id = session.get('user_id')
+    if user_id:
+        g.user = User.query.get(user_id)
+    else:
+        g.user = None
 
 
 def do_login(user):

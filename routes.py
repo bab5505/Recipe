@@ -4,6 +4,7 @@ from models import Recipe
 from database import db
 from sqlalchemy.exc import IntegrityError
 
+auth_bp = Blueprint('auth', __name__)
 recipe_bp = Blueprint('recipe', __name__)
 
 @recipe_bp.route('/recipes')
@@ -41,7 +42,7 @@ def recipe_create():
             # Redirect the user to the recipe list
             return redirect(url_for('recipe_bp.recipe_list'))
 
-        except IntegrityError as e:
+        except IntegrityError:
             flash("An error occurred while adding the recipe.", 'danger')
             return render_template('recipe_create.html', form=form)
 
@@ -54,9 +55,9 @@ def recipe_detail(recipe_id):
 
     if recipe:
         return render_template('recipe_detail.html', recipe=recipe)
-    else:
-        flash("Recipe not found.", 'danger')
-        return redirect(url_for('recipe_bp.recipe_list'))
+
+    flash("Recipe not found.", 'danger')
+    return redirect(url_for('recipe_bp.recipe_list'))
 
 @recipe_bp.route('/<int:recipe_id>/edit', methods=["GET", "POST"])
 def recipe_edit(recipe_id):
@@ -73,12 +74,7 @@ def recipe_edit(recipe_id):
         if form.validate_on_submit():
             try:
                 # Update the recipe with the form data
-                recipe.title = form.title.data
-                recipe.description = form.description.data
-                recipe.instructions = form.instructions.data
-                recipe.ingredients = form.ingredients.data
-                recipe.prep_time = form.prep_time.data
-                recipe.servings = form.servings.data
+                form.populate_obj(recipe)
 
                 # Commit the changes to the database
                 db.session.commit()
@@ -88,14 +84,14 @@ def recipe_edit(recipe_id):
                 # Redirect the user to the recipe detail page
                 return redirect(url_for('recipe_bp.recipe_detail', recipe_id=recipe.id))
 
-            except IntegrityError as e:
+            except IntegrityError:
                 flash("An error occurred while updating the recipe.", 'danger')
                 return render_template('recipe_edit.html', form=form, recipe_id=recipe.id)
 
         return render_template('recipe_edit.html', form=form, recipe_id=recipe.id)
-    else:
-        flash("Recipe not found.", 'danger')
-        return redirect(url_for('recipe_bp.recipe_list'))
+
+    flash("Recipe not found.", 'danger')
+    return redirect(url_for('recipe_bp.recipe_list'))
 
 @recipe_bp.route('/<int:recipe_id>/delete', methods=["POST"])
 def recipe_delete(recipe_id):
@@ -111,7 +107,7 @@ def recipe_delete(recipe_id):
         db.session.commit()
 
         flash("Recipe deleted successfully.", 'success')
-    else:
-        flash("Recipe not found.", 'danger')
+        return redirect(url_for('recipe_bp.recipe_list'))
 
+    flash("Recipe not found.", 'danger')
     return redirect(url_for('recipe_bp.recipe_list'))
