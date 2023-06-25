@@ -3,6 +3,10 @@
 {% block title %}Add Recipe{% endblock %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
+        <a href="{{ url_for('add_recipe') }}" class="btn btn-primary">Add Recipe</a>
+    {% else %}
+        <p>Please log in to view recipes.</p>
     <h1>Add Recipe</h1>
     <form method="post" action="{{ url_for('add_recipe') }}">
         <!-- Add recipe form fields -->

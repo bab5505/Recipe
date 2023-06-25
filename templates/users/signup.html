@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Sign Up</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for field_name, field_errors in form.errors.items() %}
+                {% for error in field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('signup') }}">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.username.label(class="form-label") }}
+      {{ form.username(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+      {{ form.password.label(class="form-label") }}
+      {{ form.password(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+      <label for="confirm_password">Confirm Password</label>
+      <input type="password" id="confirm_password" name="confirm_password" required>
+  </div>
+
+    <div class="form-group">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+      {{ form.image_url.label(class="form-label") }}
+      {{ form.image_url(class="form-control") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+{% endblock %}

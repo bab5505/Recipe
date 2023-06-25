@@ -1,18 +1,58 @@
 from database import db
+from flask_bcrypt import Bcrypt
+from flask_login import UserMixin
 
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+bcrypt = Bcrypt()
 
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    image_url = db.Column(db.String(200), default="/static/images/default-pic.png")
+    active = db.Column(db.Boolean, default=True)  # Add an active flag to determine if the user account is active
+
+    @classmethod
+    def signup(cls, username, email, password, confirm_password, image_url):
+        """Sign up user"""
+        if password != confirm_password:
+            raise ValueError("Password and confirm password do not match")
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User(
+            username=username,
+            email=email,
+            password=hashed_pwd,
+            image_url=image_url,
+        )
+
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    @classmethod
+    def authenticate(cls, username, password):
+        """Find user with `username` and `password`"""
+        user = cls.query.filter_by(username=username).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
+
+        return None
+
+    @property
+    def is_active(self):
+        # Determine if the user account is active
+        return self.active
 
 class Recipe(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(500), nullable=False)
-    instructions = db.Column(db.Text, nullable=False)
-    ingredients = db.Column(db.Text, nullable=False)
-    prep_time = db.Column(db.Integer, nullable=False)
-    servings = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    __tablename__ = 'recipes'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(200))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref='recipes')
+

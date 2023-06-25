@@ -1,12 +1,11 @@
 from flask import Flask, request, render_template, redirect, url_for, session, g, flash
 from routes import auth_bp, recipe_bp
 from config import Config
-from forms import RecipeForm, UserAddForm, LoginForm
+from forms import UserAddForm, LoginForm, RecipeForm
 from database import db, migrate
-from models import Recipe, User
-from routes import auth_bp, recipe_bp
-from sqlalchemy.exc import IntegrityError
-# from flask_migrate import Migrate
+from models import User, Recipe
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 import requests
 
 CURR_USER_KEY = 'User_id'
@@ -15,6 +14,13 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with your secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://robert:cookers5@localhost/recipe'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 from database import db, migrate
 
@@ -86,6 +92,10 @@ def do_login(user):
     """Log in user."""
     session['user_id'] = user.id
 
+@login_manager.user_loader
+def load_user(user_id):
+    print("Loading user:", user_id)
+    return User.query.get(int(user_id))
 
 def do_logout():
     """Logout user."""
@@ -100,53 +110,95 @@ def signup():
     form = UserAddForm()
 
     if form.validate_on_submit():
-        try:
-            user = User.signup(
-                username=form.username.data,
-                password=form.password.data,
-                email=form.email.data,
-                image_url=form.image_url.data or User.image_url.default.arg,
-            )
-            db.session.add(user)
-            db.session.commit()
+        if User.query.filter_by(username=form.username.data).first():
+            flash("Username already taken. Please choose a different username.", 'danger')
+        elif form.password.data != form.confirm_password.data:
+            flash("Password and confirm password do not match.", 'danger')
+        else:
+            try:
+                user = User.signup(
+                    username=form.username.data,
+                    password=form.password.data,
+                    email=form.email.data,
+                    confirm_password=form.confirm_password.data,
+                    image_url=form.image_url.data or User.image_url.default.arg
+                )
 
-        except IntegrityError as e:
-            flash("Username already taken", 'danger')
-            return render_template('signup.html', form=form)
+                db.session.add(user)
+                db.session.commit()
 
-        do_login(user)
+                # Log in the user after successful signup
+                login_user(user)
 
-        return redirect("/")
+                # Redirect to the index page
+                return redirect(url_for('index'))
 
-    else:
-        return render_template('signup.html', form=form)
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                flash("An error occurred while creating the user: " + str(e), 'danger')
+
+    return render_template('users/signup.html', form=form)
 
 
-@app.route('/login', methods=["GET", "POST"])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    """User login"""
+    # Create an instance of the login form
     form = LoginForm()
 
+    # Handle form submission
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data, form.password.data)
+        # Retrieve the submitted username and password
+        username = form.username.data
+        password = form.password.data
+
+        # Authenticate the user
+        user = User.authenticate(username, password)
 
         if user:
-            do_login(user)
+            # User authentication successful
+            login_user(user)
             flash(f"Hello, {user.username}!", "success")
             return redirect(url_for('index'))
         else:
-            flash("Invalid credentials.", 'danger')
+            # Invalid credentials
+            flash("Invalid credentials.", "danger")
 
-    return render_template('login.html', form=form)
+    # Render the login template with the form
+    return render_template('users/login.html', form=form)
+
+
+@app.route('/users/<int:user_id>')
+@login_required
+def user_profile(user_id):
+    # Get the user data based on the user_id
+    user = User.query.get(user_id)
+
+    # Render the user profile template with the user data
+    return render_template('users/user.html', user=user)
 
 
 @app.route('/logout', methods=["GET"])
+@login_required
 def logout():
     """User logout"""
-    do_logout()
+    logout_user()
     flash("You have successfully logged out.", 'success')
     return redirect(url_for('index'))
 
+@app.route('/add_recipe', methods=['GET', 'POST'])
+@login_required
+def add_recipe():
+    form = RecipeForm()
+
+    # Handle form submission
+    if form.validate_on_submit():
+        # Process the form data and add the recipe to the database
+        # ...
+
+        flash('Recipe added successfully!', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('add_recipe.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)

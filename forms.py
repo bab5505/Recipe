@@ -19,4 +19,6 @@ class UserAddForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    image_url = StringField('Image URL') 
     submit = SubmitField('Register')
+    

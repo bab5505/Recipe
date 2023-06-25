@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="row">
+    <aside class="col-md-4 col-lg-3 col-sm-12" id="home-aside">
+      <div class="card user-card">
+        <div>
+          <a href="/users/{{ user.id }}" class="card-link">
+            <img src="{{ user.image_url }}"
+                 alt="Image for {{ user.username }}"
+                 class="card-image">
+            <p>@{{ user.username }}</p>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="col-lg-6 col-md-8 col-sm-12">
+      <!-- User profile information -->
+      <h2>{{ user.username }}</h2>
+      <p>Email: {{ user.email }}</p>
+      <!-- Add any other user profile details you want to display -->
+    </div>
+  </div>
+{% endblock %}
