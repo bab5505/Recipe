@@ -12,7 +12,7 @@ class RecipeForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired(), Length(max=500)])
     instructions = TextAreaField('Instructions', validators=[DataRequired()])
     ingredients = TextAreaField('Ingredients', validators=[DataRequired()])
-    prep_time = IntegerField('Prep Time (minutes)', validators=[DataRequired()])
+    preparation_time = IntegerField('Preparation Time (minutes)', validators=[DataRequired()])
     servings = IntegerField('Servings', validators=[DataRequired()])
 
 class UserAddForm(FlaskForm):
@@ -22,7 +22,7 @@ class UserAddForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     image_url = StringField('Image URL') 
     submit = SubmitField('Register')
-    
+
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:

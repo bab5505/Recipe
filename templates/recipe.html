@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Recipes{% endblock %}
+
+{% block content %}
+    <h1>Recipes</h1>
+    <!-- Display list of recipes -->
+    {% if recipes %}
+        <ul>
+            {% for recipe in recipes %}
+                <li>
+                    <h2>{{ recipe.title }}</h2>
+                    <p>{{ recipe.description }}</p>
+                    <a href="{{ url_for('recipe_details', recipe_id=recipe.id) }}" class="btn btn-primary">View Recipe</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recipes available.</p>
+    {% endif %}
+{% endblock %}

@@ -1,6 +1,7 @@
 from database import db
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
+# from sqlalchemy import Column, Integer
 
 bcrypt = Bcrypt()
 

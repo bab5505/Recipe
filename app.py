@@ -9,7 +9,6 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import requests
 
 
-
 CURR_USER_KEY = 'user_id'
 
 app = Flask(__name__)
@@ -24,48 +23,26 @@ migrate.init_app(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# class User(UserMixin):
-#     def __init__(self, id):
-#         self.id = id
-def save_recipe(recipe):
-    try:
-        db.session.add(recipe)
-        db.session.commit()
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        flash("An error occurred while saving the recipe: " + str(e), 'danger')
-
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
 @app.before_request
 def add_user_to_g():
-    """If we're logged in, add current user to Flask global."""
+    """If we're logged in, add the current user to Flask global."""
     user_id = session.get('user_id')
     if user_id:
         g.user = User.query.get(user_id)
-        print(f"User ID from session: {user_id}")
-        print(f"Current user ID from database: {g.user.id}")
-        print(f"Current user authenticated: {current_user.is_authenticated}")
     else:
         g.user = None
+
 
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(recipe_bp)
 
-def get_recipe(recipe_id):
-    # Replace this with your logic to get the recipe
-    # Example: recipe = Recipe.query.get(recipe_id)
-    recipe = {
-        'id': recipe_id,
-        'title': 'Sample Recipe',
-        'description': 'This is a sample recipe description',
-        # Add more recipe details as needed
-    }
-    return recipe
 
 @app.route('/')
 def index():
@@ -74,16 +51,11 @@ def index():
     recipes = [
         {
             'id': 1,
-            'title': 'Recipe 1',
-            'description': 'Description 1'
+            'title': 'Recipe List',
+            # 'description': 'Description 1'
         },
-        # {
-        #     'id': 2,
-        #     'title': 'Recipe 2',
-        #     'description': 'Description 2'
-        # }
     ]
-    
+
     app_id = '8840b05c'
     app_key = 'd9dfcdab7d11138e533e7af51fc3a31b'
     query = ''  # Replace with the desired recipe query
@@ -146,10 +118,6 @@ def signup():
                 # Log in the user after successful signup
                 login_user(user)
 
-                # Print some debug information
-                print(f"Current user ID: {current_user.id}")
-                print(f"Current user authenticated: {current_user.is_authenticated}")
-
                 # Redirect to the index page
                 return redirect(url_for('index'))
 
@@ -158,7 +126,6 @@ def signup():
                 flash("An error occurred while creating the user: " + str(e), 'danger')
 
     return render_template('users/signup.html', form=form)
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -200,40 +167,101 @@ def logout():
     return redirect(url_for('index'))
 
 
-def get_recipe(recipe_id):
-    recipe = Recipe.query.get(recipe_id)
-    return recipe
-
-@app.route('/recipes')
-def recipes():
+@app.route('/recipe')
+def recipe():
     # Retrieve the list of recipes from your data source
-    recipes = get_recipe()
+    recipes = Recipe.query.all()
+
+    print("Number of recipes:", len(recipes))  # Print the number of recipes
+
+    for recipe in recipes:
+        print("Recipe title:", recipe.title)  # Print the title of each recipe
+        print("Recipe description:", recipe.description)  # Print the description of each recipe
 
     return render_template('recipe.html', recipes=recipes)
 
+
 @app.route('/view_recipe/<int:recipe_id>')
+@login_required
 def view_recipe(recipe_id):
-    # Retrieve the specific recipe from your data source using the recipe_id
-    recipe = get_recipe(recipe_id)  # Replace with your logic to get the recipe
+    # Retrieve the specific recipe from the database using the recipe_id
+    recipe = Recipe.query.get(recipe_id)
 
     if recipe:
-        return render_template('recipe.html', recipe=recipe)
+        return render_template('recipe_details.html', recipe=recipe)
     else:
-        return 'Recipe not found'
+        flash("Recipe not found.", "danger")
+        return redirect(url_for('recipe'))
+
 
 @app.route('/add_recipe', methods=['GET', 'POST'])
 def add_recipe():
     form = RecipeForm()
     if form.validate_on_submit():
-        # Create a new Recipe object and save it
+        # Create a new Recipe object and associate it with the current user
         recipe = Recipe(
             title=form.title.data,
-            description=form.description.data
+            description=form.description.data,
+            user_id=current_user.id
         )
-        save_recipe(recipe)
+        db.session.add(recipe)
+        db.session.commit()
         return redirect(url_for('index'))
 
     return render_template('add_recipe.html', form=form)
+
+
+@app.route('/recipe/<int:recipe_id>')
+def recipe_details(recipe_id):
+    # Retrieve the specific recipe from the database using the recipe_id
+    recipe = Recipe.query.get(recipe_id)
+
+    if recipe:
+        print(recipe)
+        return render_template('recipe_details.html', recipe=recipe)
+    else:
+        return 'Recipe not found'
+
+@app.route('/edit_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+def edit_recipe(recipe_id):
+    # Retrieve the recipe from the database using the recipe_id
+    recipe = Recipe.query.get(recipe_id)
+
+    if not recipe:
+        return 'Recipe not found'
+
+    form = RecipeForm(obj=recipe)
+
+    if form.validate_on_submit():
+        # Update the recipe object with the new data
+        recipe.title = form.title.data
+        recipe.description = form.description.data
+
+        db.session.commit()
+
+        flash("Recipe updated successfully.", "success")
+        return redirect(url_for('view_recipe', recipe_id=recipe.id))
+
+    return render_template('edit_recipe.html', form=form, recipe=recipe, recipe_id=recipe_id)
+
+
+@app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+def delete_recipe(recipe_id):
+    # Retrieve the recipe from the database using the recipe_id
+    recipe = Recipe.query.get(recipe_id)
+
+    if not recipe:
+        return 'Recipe not found'
+
+    if request.method == 'POST':
+        db.session.delete(recipe)
+        db.session.commit()
+
+        flash("Recipe deleted successfully.", "success")
+        return redirect(url_for('recipe'))
+
+    return render_template('users/delete.html', recipe=recipe)
+
 
 @app.route('/profile')
 @login_required

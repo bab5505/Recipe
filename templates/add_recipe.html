@@ -3,33 +3,69 @@
 {% block title %}Add Recipe{% endblock %}
 
 {% block content %}
-  {% if current_user.is_authenticated %}
     <h1>Add Recipe</h1>
-    <form method="post" action="{{ url_for('add_recipe') }}">
-      <!-- Add recipe form fields -->
-      {{ form.hidden_tag() }}
-      <div>
-          {{ form.title.label }} {{ form.title }}
-      </div>
-      <div>
-          {{ form.description.label }} {{ form.description }}
-      </div>
-      <div>
-          {{ form.instructions.label }} {{ form.instructions }}
-      </div>
-      <div>
-          {{ form.ingredients.label }} {{ form.ingredients }}
-      </div>
-      <div>
-          {{ form.prep_time.label }} {{ form.prep_time }}
-      </div>
-      <div>
-          {{ form.servings.label }} {{ form.servings }}
-      </div>
-      <!-- Additional recipe fields -->
-      <button type="submit">Add Recipe</button>
+    <form method="POST" action="{{ url_for('add_recipe') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }} {{ form.title(class="form-control") }}
+            {% if form.title.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.title.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }} {{ form.description(class="form-control") }}
+            {% if form.description.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.instructions.label }} {{ form.instructions(class="form-control") }}
+            {% if form.instructions.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.instructions.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.ingredients.label }} {{ form.ingredients(class="form-control") }}
+            {% if form.ingredients.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.ingredients.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.preparation_time.label }} {{ form.preparation_time(class="form-control") }}
+            {% if form.preparation_time.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.preparation_time.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.servings.label }} {{ form.servings(class="form-control") }}
+            {% if form.servings.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.servings.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Add Recipe</button>
     </form>
-  {% else %}
-    <p>Please log in to add a recipe.</p>
-  {% endif %}
 {% endblock %}
