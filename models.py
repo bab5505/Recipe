@@ -57,3 +57,13 @@ class Recipe(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', backref='recipes')
 
+
+# class Recipe(db.Model):
+#     __tablename__ = 'recipes'
+#     id = Column(Integer, primary_key=True)
+#     title = Column(String(100))
+#     description = Column(String(500))
+#     preparation_time = Column(Integer)  # New column definition
+#     servings = Column(Integer)
+#     ingredients = Column(String(1000))
+#     instructions = Column(String(2000))
