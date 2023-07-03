@@ -10,17 +10,25 @@
         <p>Preparation Time: {{ recipe.preparation_time }}</p>
         <p>Servings: {{ recipe.servings }}</p>
         <p>Ingredients:</p>
-        <ul>
-            {% for ingredient in recipe.ingredients %}
-                <li>{{ ingredient }}</li>
-            {% endfor %}
-        </ul>
-        <p>Instructions:</p>
-        <ol>
-            {% for step in recipe.instructions %}
-                <li>{{ step }}</li>
-            {% endfor %}
-        </ol>
+{% if recipe.ingredients %}
+    {% for ingredient in recipe.ingredients %}
+        <span style="display: inline;">{{ ingredient }}</span>
+    {% endfor %}
+{% else %}
+    <p>No ingredients found.</p>
+{% endif %}
+
+<p>Instructions:</p>
+{% if recipe.instructions %}
+    {% for step in recipe.instructions %}
+        <span style="display: inline;">{{ step }}</span>
+    {% endfor %}
+{% else %}
+    <p>No instructions found.</p>
+{% endif %}
+
+<br>
+<br>
         <a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}" class="btn btn-primary">Edit Recipe</a>
         <a href="{{ url_for('delete_recipe', recipe_id=recipe.id) }}" class="btn btn-danger">Delete Recipe</a>
     {% else %}

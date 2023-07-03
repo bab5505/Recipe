@@ -1,3 +1,4 @@
+# from app import app
 from database import db
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
@@ -53,6 +54,10 @@ class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    preparation_time = db.Column(db.Integer)
+    servings = db.Column(db.Integer)
+    ingredients = db.Column(db.String(255))
+    instructions = db.Column(db.Text)
     image_url = db.Column(db.String(200))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', backref='recipes')

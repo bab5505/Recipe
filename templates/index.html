@@ -74,7 +74,7 @@
     var storedRecipes = getStoredRecipes();
     renderRecipes(storedRecipes);
 
-    searchButton.addEventListener('click', function() {
+    document.addEventListener('DOMContentLoaded', function() {
       var query = searchInput.value;
 
       // Perform the necessary action with the search query

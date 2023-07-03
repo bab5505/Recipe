@@ -202,6 +202,10 @@ def add_recipe():
         recipe = Recipe(
             title=form.title.data,
             description=form.description.data,
+            preparation_time=form.preparation_time.data,
+            servings=form.servings.data,
+            ingredients=form.ingredients.data,
+            instructions=form.instructions.data,
             user_id=current_user.id
         )
         db.session.add(recipe)
@@ -233,9 +237,12 @@ def edit_recipe(recipe_id):
     form = RecipeForm(obj=recipe)
 
     if form.validate_on_submit():
-        # Update the recipe object with the new data
-        recipe.title = form.title.data
-        recipe.description = form.description.data
+        recipe.title = request.form['title']
+        recipe.description = request.form['description']
+        recipe.instructions = request.form['instructions']
+        recipe.ingredients = request.form['ingredients']
+        recipe.preparation_time = int(request.form['preparation_time'])
+        recipe.servings = int(request.form['servings'])
 
         db.session.commit()
 
